@@ -1,0 +1,250 @@
+/* ───────────────────────────────────────── QUOTE PAGE */
+
+.quote-hero {
+  padding: 140px var(--gutter) 64px;
+  background: var(--lime);
+  display: grid; gap: 16px;
+}
+.quote-title {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 800;
+  font-size: clamp(40px, 7vw, 88px);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  margin: 0;
+  color: var(--ink);
+}
+.quote-title em { color: var(--pink); }
+.quote-subtitle {
+  font-size: clamp(15px, 1.3vw, 18px);
+  line-height: 1.6;
+  color: rgba(10,10,10,0.6);
+  margin: 0;
+  max-width: 52ch;
+}
+
+/* ───────────────────────────────────────── PACKAGES */
+.quote-packages {
+  padding: clamp(64px, 10vh, 120px) var(--gutter);
+  max-width: var(--maxw); margin: 0 auto;
+  display: grid; gap: 32px;
+}
+.pkg-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 900px) {
+  .pkg-grid { grid-template-columns: 1fr; }
+}
+
+.pkg-card {
+  border: 1px solid var(--rule);
+  padding: 32px 28px;
+  display: flex; flex-direction: column; gap: 24px;
+  cursor: pointer;
+  transition: border-color .25s, box-shadow .25s;
+  background: #fff;
+}
+.pkg-card:hover {
+  border-color: var(--pink);
+}
+.pkg-active {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 2px var(--pink);
+}
+
+.pkg-header { display: grid; gap: 8px; }
+.pkg-name {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.pkg-desc {
+  font-size: 15px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.pkg-details {
+  display: flex; gap: 32px;
+}
+.pkg-stat {
+  display: flex; flex-direction: column;
+}
+.pkg-stat-num {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 800;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--pink);
+}
+.pkg-stat-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.pkg-includes {
+  list-style: none;
+  padding: 0; margin: 0;
+  display: grid; gap: 0;
+  border-top: 1px solid var(--rule);
+}
+.pkg-includes li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 14px;
+  color: #333;
+}
+
+.pkg-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+.pkg-price {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+}
+.btn-outline:hover {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+/* ───────────────────────────────────────── ADD-ONS */
+.quote-addons {
+  padding: clamp(64px, 10vh, 120px) var(--gutter);
+  max-width: var(--maxw); margin: 0 auto;
+  display: grid; gap: 28px;
+  border-top: 1px solid var(--rule);
+}
+.addons-h {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 700;
+  font-size: clamp(28px, 4vw, 48px);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin: 0;
+}
+.addons-h em { color: var(--pink); }
+
+.addons-list {
+  display: grid; gap: 0;
+  border-top: 1px solid var(--rule);
+}
+.addon-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.addon-info {
+  flex: 1;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.addon-name {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+}
+.addon-unit {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.addon-price {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.addon-qty {
+  display: flex; align-items: center; gap: 0;
+}
+.qty-btn {
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  border: 1px solid var(--rule);
+  background: transparent;
+  font-size: 18px;
+  font-weight: 500;
+  transition: background .15s, color .15s;
+}
+.qty-btn:first-child { border-radius: 6px 0 0 6px; }
+.qty-btn:last-child { border-radius: 0 6px 6px 0; }
+.qty-btn:hover:not(:disabled) { background: var(--ink); color: var(--bg); }
+.qty-btn:disabled { opacity: 0.3; cursor: default; }
+.qty-num {
+  width: 40px; height: 36px;
+  display: grid; place-items: center;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .addon-row { flex-wrap: wrap; gap: 12px; }
+  .addon-price { flex-basis: 100%; order: 3; }
+}
+
+/* ───────────────────────────────────────── TOTAL */
+.quote-total {
+  padding: clamp(64px, 10vh, 120px) var(--gutter);
+  background: var(--ink);
+  color: var(--bg);
+}
+.total-inner {
+  max-width: 640px; margin: 0 auto;
+  display: grid; gap: 28px;
+}
+.total-inner .kicker { color: rgba(255,255,255,0.5); }
+.total-breakdown {
+  display: grid; gap: 0;
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
+.total-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  font-size: 15px;
+  color: rgba(255,255,255,0.7);
+}
+.total-final {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 700;
+  font-size: clamp(24px, 3vw, 36px);
+  color: #fff;
+  padding: 24px 0;
+  letter-spacing: -0.02em;
+}
+.total-note {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+  line-height: 1.6;
+}
+.quote-total .btn { background: var(--bg); color: var(--ink); }
+.quote-total .btn:hover { background: var(--pink); color: var(--ink); }
