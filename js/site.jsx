@@ -27,6 +27,17 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "weddingsBg": "pink"
 }/*EDITMODE-END*/;
 
+// SVG arrow icons to avoid emoji rendering on mobile
+const ArrowUpRight = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: "inline-block", verticalAlign: "middle" }}><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
+);
+const ArrowDown = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: "inline-block", verticalAlign: "middle" }}><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+);
+const CheckIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: "inline-block", verticalAlign: "middle" }}><path d="M20 6L9 17l-5-5"/></svg>
+);
+
 // Smaller W mark for inline use (matches logo proportions)
 const WMark = ({ fill = "currentColor", style }) => (
   <svg viewBox="0 0 100 78" preserveAspectRatio="xMidYMid meet" style={style} aria-hidden="true">
@@ -92,7 +103,7 @@ function HeroPoster() {
       }} style={{ cursor: "pointer" }}>
         <span className="hero-cta-btn">
           <span>View more</span>
-          <span aria-hidden="true">↓</span>
+          <ArrowDown />
         </span>
         <img src="Assets/images/CTA_icecream.png" alt="Ice cream" className="hero-cta-icecream" />
       </div>
@@ -177,7 +188,7 @@ function Highlights() {
           </div>
           <a href="https://wonkieicecream.beepit.com/ordering/?type=delivery" target="_blank" rel="noopener noreferrer" className="btn btn-pink">
             <span>Order now</span>
-            <span aria-hidden="true">↗</span>
+            <ArrowUpRight />
           </a>
         </div>
         <div className="highlights-scatter">
@@ -254,7 +265,7 @@ function Weddings({ bg }) {
           </p>
           <a href="quote.html" className="btn btn-light">
             <span>start a quote</span>
-            <span aria-hidden="true">↗</span>
+            <ArrowUpRight />
           </a>
         </div>
 
@@ -355,9 +366,9 @@ function VisitEnquire() {
             <textarea rows={4} value={form.note} onChange={e => setForm({...form, note: e.target.value})}
               placeholder="weddings, popups, collabs, weird ideas..." />
           </label>
-          <button type="submit" className="btn">
+          <button type="submit" className={`btn${sent ? " btn-sent" : ""}`}>
             <span>{sent ? "sent — talk soon" : "send"}</span>
-            <span aria-hidden="true">{sent ? "✓" : "↗"}</span>
+            {sent ? <CheckIcon /> : <ArrowUpRight />}
           </button>
         </form>
       </div>
