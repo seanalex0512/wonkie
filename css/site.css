@@ -522,28 +522,19 @@ em {
 /* ───────────────────────────────────────── BUTTON */
 .btn {
   display: inline-flex; align-items: center; gap: 12px;
-  background: var(--ink); color: var(--bg);
+  background: var(--pink); color: #fff;
   padding: 14px 22px;
   border-radius: 999px;
   border: none;
   font-family: "Bricolage Grotesque", sans-serif;
   font-weight: 600; font-size: 16px; letter-spacing: -0.01em;
-  transition: background .25s, color .25s;
+  cursor: pointer;
   width: fit-content;
 }
-.btn:hover { background: var(--pink); color: var(--ink); }
-.btn-pink {
-  background: var(--pink); color: #fff;
-}
-.btn-pink:hover { background: var(--pink); color: #fff; }
 .btn-light {
   background: #fff; color: var(--ink);
 }
-.btn-light:hover { background: var(--lime); color: var(--ink); }
 .btn-sent { background: #22c55e; color: #fff; }
-.btn-sent:hover { background: #22c55e; color: #fff; }
-.btn span:last-child { transition: transform .25s; }
-.btn:hover span:last-child { transform: translate(2px, -2px); }
 
 /* ───────────────────────────────────────── VISIT — Come find us */
 .visit-find {
@@ -630,7 +621,6 @@ em {
 .visit-enquire .field input:focus,
 .visit-enquire .field textarea:focus { border-bottom-color: var(--ink); }
 .visit-enquire .btn { background: var(--lime); color: var(--ink); }
-.visit-enquire .btn:hover { background: var(--lime); color: var(--ink); }
 @media (max-width: 820px) {
   .visit-enquire-inner { grid-template-columns: 1fr; gap: 40px; }
 }
