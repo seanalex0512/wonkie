@@ -73,6 +73,7 @@ export default function RootLayout({ children }) {
     >
       <head>
         <meta name="theme-color" content="#ff7bb6" />
+        <link rel="preload" href="/images/hero-tray.webp" as="image" type="image/webp" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

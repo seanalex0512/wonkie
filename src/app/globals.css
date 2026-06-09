@@ -137,7 +137,7 @@ em {
 .hero {
   position: relative;
   min-height: 100vh;
-  background: var(--ink) url("/images/hero-tray.png") center center / cover no-repeat;
+  background: var(--ink) url("/images/hero-tray.webp") center center / cover no-repeat;
   padding: 96px var(--gutter) 64px;
   display: grid;
   place-items: center;
