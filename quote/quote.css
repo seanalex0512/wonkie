@@ -179,6 +179,11 @@
   padding-right: 40px;
 }
 .field textarea { resize: vertical; min-height: 80px; }
+.field-error {
+  color: #e53e3e;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
 
 /* ───────────────────────────────────────── GHOST / PINK BUTTONS */
 .btn-ghost {
@@ -356,6 +361,84 @@
   font-weight: 500;
 }
 
+/* ───────────────────────────────────────── FLAVOUR PICKER */
+.flavour-picker {
+  display: grid;
+  gap: 16px;
+}
+.flavour-picker-status {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.flavour-picker-count {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  font-weight: 600;
+}
+.flavour-picker-surcharge {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--pink);
+  font-weight: 500;
+}
+.flavour-list-select {
+  margin: 8px 0 0;
+}
+.flavour-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 15px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: color .15s;
+  user-select: none;
+}
+.flavour-option:hover {
+  color: var(--pink);
+}
+.flavour-disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.flavour-disabled:hover {
+  color: var(--ink);
+}
+.flavour-selected {
+  font-weight: 600;
+}
+.flavour-check {
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--rule);
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: background .15s, border-color .15s;
+}
+.flavour-selected .flavour-check {
+  background: var(--pink);
+  border-color: var(--pink);
+  color: #fff;
+}
+.flavour-surcharge-tag {
+  margin-left: auto;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--pink);
+  font-weight: 500;
+}
+
 /* ───────────────────────────────────────── ADD-ONS */
 .addons-list {
   display: grid; gap: 0;
@@ -376,6 +459,11 @@
   font-family: "Bricolage Grotesque", sans-serif;
   font-weight: 600;
   font-size: 17px;
+}
+.addon-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.4;
 }
 .addon-unit {
   font-family: "JetBrains Mono", monospace;
@@ -533,13 +621,14 @@
   max-width: 480px;
 }
 .sent-check {
-  width: 56px; height: 56px;
-  display: grid; place-items: center;
+  width: 40px; height: 40px;
+  display: inline-grid; place-items: center;
   background: var(--lime);
   border-radius: 50%;
+  flex-shrink: 0;
 }
 .sent-check svg {
-  width: 24px; height: 24px;
+  width: 20px; height: 20px;
   stroke: var(--ink);
 }
 

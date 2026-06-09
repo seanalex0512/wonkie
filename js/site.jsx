@@ -1,6 +1,22 @@
 // Wonkie — minimal, bolder hero
 const { useState, useEffect, useRef, useLayoutEffect } = React;
 
+// ───────────────────────────────────────── FORMSUBMIT
+// Test email: seanalex0512@gmail.com — change to Hello.wonkie@gmail.com for production.
+// First submission triggers a confirmation email — click the link to activate.
+const FORM_EMAIL = "seanalex0512@gmail.com";
+
+function submitForm(email, data) {
+  return fetch(`https://formsubmit.co/ajax/${email}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(data),
+  }).then((res) => {
+    if (!res.ok) throw new Error("Form submission failed");
+    return res.json();
+  });
+}
+
 // ───────────────────────────────────────── SCROLL REVEAL HOOK
 function useReveal() {
   const ref = useRef(null);
@@ -301,9 +317,9 @@ function VisitFind() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.07 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 5.94 5.94l1.21-1.21a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"/></svg>
                 016-489 7728
               </a>
-              <a href="mailto:hello@wonkie.cream">
+              <a href="mailto:Hello.wonkie@gmail.com">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                hello@wonkie.cream
+                Hello.wonkie@gmail.com
               </a>
               <a href="https://instagram.com/wonkieicecream" target="_blank" rel="noopener noreferrer">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
@@ -330,9 +346,24 @@ function VisitFind() {
 
 function VisitEnquire() {
   const ref = useReveal();
-  const [form, setForm] = useState({ name: "", email: "", event: "", venue: "", date: "" });
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
-  const submit = (e) => { e.preventDefault(); setSent(true); };
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState(null);
+  const submit = (e) => {
+    e.preventDefault();
+    setSending(true);
+    setError(null);
+    submitForm(FORM_EMAIL, {
+      _subject: `Wonkie Enquiry from ${form.name}`,
+      _replyto: form.email,
+      name: form.name,
+      email: form.email,
+      "event details": form.message,
+    })
+      .then(() => { setSent(true); setSending(false); })
+      .catch(() => { setError("Something went wrong — please try again."); setSending(false); });
+  };
   return (
     <section className="visit-enquire reveal" ref={ref} data-screen-label="04b Enquire">
       <div className="visit-enquire-inner">
@@ -351,33 +382,25 @@ function VisitEnquire() {
         </div>
         <form className="visit-form" onSubmit={submit}>
           <span className="kicker">— enquire</span>
-          <h3>Tell us what you're cooking up.</h3>
+          <h3>For event enquiries, fill in your details below or WhatsApp us.</h3>
           <label className="field">
             <span>name</span>
             <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
           </label>
           <label className="field">
             <span>email</span>
-            <input value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
+            <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
           </label>
           <label className="field">
-            <span>type of event</span>
-            <input value={form.event} onChange={e => setForm({...form, event: e.target.value})}
-              placeholder="wedding, corporate, pop-up, private dinner..." />
+            <span>event details</span>
+            <textarea rows={4} value={form.message} onChange={e => setForm({...form, message: e.target.value})}
+              placeholder="Tell us what you have in mind!" />
           </label>
-          <label className="field">
-            <span>venue</span>
-            <input value={form.venue} onChange={e => setForm({...form, venue: e.target.value})}
-              placeholder="your venue or ours" />
-          </label>
-          <label className="field">
-            <span>date</span>
-            <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} />
-          </label>
-          <button type="submit" className={`btn${sent ? " btn-sent" : ""}`}>
-            <span>{sent ? "sent — talk soon" : "send"}</span>
+          <button type="submit" className={`btn${sent ? " btn-sent" : ""}`} disabled={sending || sent}>
+            <span>{sent ? "sent — talk soon" : sending ? "sending..." : "send"}</span>
             {sent ? <CheckIcon /> : <ArrowUpRight />}
           </button>
+          {error && <p style={{ color: "#e53e3e", fontSize: "14px", margin: 0 }}>{error}</p>}
         </form>
       </div>
     </section>
@@ -421,7 +444,7 @@ function Footer() {
             <a href="https://wa.me/60164897728" target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="WhatsApp">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
             </a>
-            <a href="mailto:hello@wonkie.cream" className="footer-social-link" aria-label="Email">
+            <a href="mailto:Hello.wonkie@gmail.com" className="footer-social-link" aria-label="Email">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
             </a>
             <a href="tel:+60164897728" className="footer-social-link" aria-label="Phone">

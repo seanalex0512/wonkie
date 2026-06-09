@@ -1,5 +1,21 @@
 const { useState } = React;
 
+// ───────────────────────────────────────── FORMSUBMIT
+// Test email: seanalex0512@gmail.com — change to Hello.wonkie@gmail.com for production.
+// First submission triggers a confirmation email — click the link to activate.
+const FORM_EMAIL = "seanalex0512@gmail.com";
+
+function submitForm(email, data) {
+  return fetch(`https://formsubmit.co/ajax/${email}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(data),
+  }).then((res) => {
+    if (!res.ok) throw new Error("Form submission failed");
+    return res.json();
+  });
+}
+
 // ───────────────────────────────────────── ICONS
 function ArrowRight() {
   return (
@@ -105,10 +121,8 @@ const PACKAGES = [
   },
 ];
 
-const ADDONS = [
-  { id: "extra-tub", name: "Extra ice cream tub", price: 180, unit: "per tub" },
-  { id: "alcoholic-upgrade", name: "Alcoholic flavour upgrade", price: 100, unit: "per tub" },
-];
+const ALCOHOLIC_SURCHARGE = 100;
+const EXTRA_TUB_PRICE = 180;
 
 
 // ───────────────────────────────────────── STEP INDICATOR
@@ -128,7 +142,16 @@ function StepIndicator({ current, steps }) {
 // ───────────────────────────────────────── STEP 1: EVENT DETAILS
 function StepEvent({ data, onChange, onNext }) {
   const update = (field) => (e) => onChange({ ...data, [field]: e.target.value });
-  const canProceed = data.eventType && data.venue && data.date;
+
+  // Tomorrow's date as minimum
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDate = tomorrow.toISOString().split("T")[0];
+
+  const guestsNum = parseInt(data.guests, 10);
+  const guestsValid = data.guests === "" || (Number.isInteger(guestsNum) && guestsNum > 0);
+  const dateValid = data.date >= minDate;
+  const canProceed = data.eventType && data.venue && data.date && dateValid && data.guests && guestsValid;
 
   return (
     <section className="quote-step">
@@ -147,6 +170,7 @@ function StepEvent({ data, onChange, onNext }) {
         <label className="field">
           <span>estimated guests</span>
           <input type="number" min="1" placeholder="e.g. 80" value={data.guests} onChange={update("guests")} />
+          {data.guests && !guestsValid && <span className="field-error">Please enter a valid number</span>}
         </label>
         <label className="field">
           <span>venue</span>
@@ -154,7 +178,8 @@ function StepEvent({ data, onChange, onNext }) {
         </label>
         <label className="field">
           <span>date</span>
-          <input type="date" value={data.date} onChange={update("date")} />
+          <input type="date" min={minDate} value={data.date} onChange={update("date")} />
+          {data.date && !dateValid && <span className="field-error">Please choose a future date</span>}
         </label>
         <label className="field field-full">
           <span>anything else we should know?</span>
@@ -205,7 +230,80 @@ function PackageCard({ pkg, selected, onSelect }) {
   );
 }
 
-function StepPackage({ selectedPkg, onSelect, onBack, onNext }) {
+// ───────────────────────────────────────── FLAVOUR PICKER (reusable)
+function FlavourPicker({ selected, maxSlots, onChange }) {
+  const toggle = (name) => {
+    if (selected.includes(name)) {
+      onChange(selected.filter((f) => f !== name));
+    } else if (selected.length < maxSlots) {
+      onChange([...selected, name]);
+    }
+  };
+  const atLimit = selected.length >= maxSlots;
+  const alcoholicCount = selected.filter((f) => FLAVOURS_ALCOHOLIC.includes(f)).length;
+
+  return (
+    <div className="flavour-picker">
+      <div className="flavour-picker-status">
+        <span className="flavour-picker-count">
+          {selected.length} / {maxSlots} flavours selected
+        </span>
+        {alcoholicCount > 0 && (
+          <span className="flavour-picker-surcharge">
+            +RM {(alcoholicCount * ALCOHOLIC_SURCHARGE).toLocaleString()} alcoholic surcharge
+          </span>
+        )}
+      </div>
+      <div className="flavour-columns">
+        <div className="flavour-col">
+          <span className="flavour-col-label">Non-Alcoholic</span>
+          <ul className="flavour-list flavour-list-select">
+            {FLAVOURS_NON_ALCOHOLIC.map((f) => {
+              const checked = selected.includes(f);
+              const disabled = !checked && atLimit;
+              return (
+                <li key={f} className={`flavour-option${checked ? " flavour-selected" : ""}${disabled ? " flavour-disabled" : ""}`}
+                    onClick={() => !disabled && toggle(f)}>
+                  <span className="flavour-check">{checked && <CheckIcon />}</span>
+                  <span>{f}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        <div className="flavour-col">
+          <span className="flavour-col-label">Alcoholic</span>
+          <ul className="flavour-list flavour-list-select">
+            {FLAVOURS_ALCOHOLIC.map((f) => {
+              const checked = selected.includes(f);
+              const disabled = !checked && atLimit;
+              return (
+                <li key={f} className={`flavour-option${checked ? " flavour-selected" : ""}${disabled ? " flavour-disabled" : ""}`}
+                    onClick={() => !disabled && toggle(f)}>
+                  <span className="flavour-check">{checked && <CheckIcon />}</span>
+                  <span>{f}</span>
+                  <span className="flavour-surcharge-tag">+RM{ALCOHOLIC_SURCHARGE}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StepPackage({ selectedPkg, onSelect, selectedFlavours, onFlavoursChange, onBack, onNext }) {
+  const pkg = PACKAGES.find((p) => p.id === selectedPkg);
+  const maxSlots = pkg ? pkg.tubs : 0;
+
+  // If they switch package and have too many flavours selected, trim
+  React.useEffect(() => {
+    if (selectedFlavours.length > maxSlots && maxSlots > 0) {
+      onFlavoursChange(selectedFlavours.slice(0, maxSlots));
+    }
+  }, [selectedPkg]);
+
   return (
     <section className="quote-step">
       <span className="kicker">— 02 choose your package</span>
@@ -213,36 +311,25 @@ function StepPackage({ selectedPkg, onSelect, onBack, onNext }) {
       <p className="step-desc">Each package is fully customisable — this is just the starting point.</p>
 
       <div className="pkg-grid">
-        {PACKAGES.map((pkg) => (
-          <PackageCard key={pkg.id} pkg={pkg} selected={selectedPkg} onSelect={onSelect} />
+        {PACKAGES.map((p) => (
+          <PackageCard key={p.id} pkg={p} selected={selectedPkg} onSelect={onSelect} />
         ))}
       </div>
 
-      <div className="flavour-menu">
-        <h3 className="flavour-menu-h">Our flavour menu</h3>
-        <div className="flavour-columns">
-          <div className="flavour-col">
-            <span className="flavour-col-label">Non-Alcoholic</span>
-            <ul className="flavour-list">
-              {FLAVOURS_NON_ALCOHOLIC.map((f) => <li key={f}>{f}</li>)}
-            </ul>
-          </div>
-          <div className="flavour-col">
-            <span className="flavour-col-label">Alcoholic</span>
-            <ul className="flavour-list">
-              {FLAVOURS_ALCOHOLIC.map((f) => <li key={f}>{f}</li>)}
-            </ul>
-            <span className="flavour-note">+RM100 per tub for alcoholic flavours</span>
-          </div>
+      {selectedPkg && (
+        <div className="flavour-menu">
+          <h3 className="flavour-menu-h">Choose your {maxSlots} flavours</h3>
+          <p className="step-desc">Pick {maxSlots} flavours for your {pkg.name} package. Alcoholic flavours have a +RM{ALCOHOLIC_SURCHARGE} surcharge per tub.</p>
+          <FlavourPicker selected={selectedFlavours} maxSlots={maxSlots} onChange={onFlavoursChange} />
         </div>
-      </div>
+      )}
 
       <div className="step-actions">
         <button className="btn btn-ghost" onClick={onBack}>
           <ArrowLeft />
           <span>back</span>
         </button>
-        <button className="btn" onClick={onNext} disabled={!selectedPkg}>
+        <button className="btn" onClick={onNext} disabled={!selectedPkg || selectedFlavours.length !== maxSlots}>
           <span>add extras</span>
           <ArrowRight />
         </button>
@@ -251,43 +338,55 @@ function StepPackage({ selectedPkg, onSelect, onBack, onNext }) {
   );
 }
 
-// ───────────────────────────────────────── STEP 3: ADD-ONS
-function AddonRow({ addon, qty, onChange }) {
-  return (
-    <div className="addon-row">
-      <div className="addon-info">
-        <span className="addon-name">{addon.name}</span>
-        <span className="addon-unit">{addon.unit}</span>
-      </div>
-      <span className="addon-price">+ RM {addon.price}</span>
-      <div className="addon-qty">
-        <button className="qty-btn" onClick={() => onChange(Math.max(0, qty - 1))} disabled={qty === 0}>-</button>
-        <span className="qty-num">{qty}</span>
-        <button className="qty-btn" onClick={() => onChange(qty + 1)}>+</button>
-      </div>
-    </div>
-  );
-}
+// ───────────────────────────────────────── STEP 3: EXTRA TUBS
+function StepExtras({ extraTubs, extraFlavours, onExtraTubsChange, onExtraFlavoursChange, onBack, onNext }) {
+  const handleQtyChange = (newQty) => {
+    onExtraTubsChange(newQty);
+    // Trim extra flavours if reducing tub count
+    if (extraFlavours.length > newQty) {
+      onExtraFlavoursChange(extraFlavours.slice(0, newQty));
+    }
+  };
 
-function StepAddons({ addons, onUpdate, onBack, onNext }) {
+  const extraAlcoholicCount = extraFlavours.filter((f) => FLAVOURS_ALCOHOLIC.includes(f)).length;
+  const extraTubCost = extraTubs * EXTRA_TUB_PRICE;
+  const extraAlcCost = extraAlcoholicCount * ALCOHOLIC_SURCHARGE;
+
   return (
     <section className="quote-step">
-      <span className="kicker">— 03 add-ons</span>
-      <h2 className="step-h">Make it <em>extra.</em></h2>
-      <p className="step-desc">Optional extras to level up the experience. Skip this if you're happy with the package as-is.</p>
+      <span className="kicker">— 03 extras</span>
+      <h2 className="step-h">Want <em>more?</em></h2>
+      <p className="step-desc">Add extra tubs on top of your package. Skip this if you're happy as-is.</p>
 
       <div className="addons-list">
-        {ADDONS.map((addon) => (
-          <AddonRow key={addon.id} addon={addon} qty={addons[addon.id]} onChange={(qty) => onUpdate(addon.id, qty)} />
-        ))}
+        <div className="addon-row">
+          <div className="addon-info">
+            <span className="addon-name">Extra ice cream tubs</span>
+            <span className="addon-desc">Additional tubs beyond your package</span>
+            <span className="addon-unit">RM {EXTRA_TUB_PRICE} per tub</span>
+          </div>
+          <span className="addon-price">{extraTubs > 0 ? `+ RM ${(extraTubCost + extraAlcCost).toLocaleString()}` : ""}</span>
+          <div className="addon-qty">
+            <button className="qty-btn" onClick={() => handleQtyChange(Math.max(0, extraTubs - 1))} disabled={extraTubs === 0}>-</button>
+            <span className="qty-num">{extraTubs}</span>
+            <button className="qty-btn" onClick={() => handleQtyChange(extraTubs + 1)}>+</button>
+          </div>
+        </div>
       </div>
+
+      {extraTubs > 0 && (
+        <div className="flavour-menu">
+          <h3 className="flavour-menu-h">Pick flavours for your extra {extraTubs === 1 ? "tub" : `${extraTubs} tubs`}</h3>
+          <FlavourPicker selected={extraFlavours} maxSlots={extraTubs} onChange={onExtraFlavoursChange} />
+        </div>
+      )}
 
       <div className="step-actions">
         <button className="btn btn-ghost" onClick={onBack}>
           <ArrowLeft />
           <span>back</span>
         </button>
-        <button className="btn" onClick={onNext}>
+        <button className="btn" onClick={onNext} disabled={extraTubs > 0 && extraFlavours.length !== extraTubs}>
           <span>review quote</span>
           <ArrowRight />
         </button>
@@ -297,14 +396,17 @@ function StepAddons({ addons, onUpdate, onBack, onNext }) {
 }
 
 // ───────────────────────────────────────── STEP 4: SUMMARY + CONTACT
-function StepSummary({ eventData, selectedPkg, addons, contact, onContactChange, onBack, onSubmit, sent }) {
+function StepSummary({ eventData, selectedPkg, selectedFlavours, extraTubs, extraFlavours, contact, onContactChange, onBack, onSubmit, sent, sending, submitError }) {
   const basePkg = PACKAGES.find((p) => p.id === selectedPkg);
   const basePrice = basePkg ? basePkg.price : 0;
-  const addonsTotal = ADDONS.reduce((sum, a) => sum + a.price * addons[a.id], 0);
-  const total = basePrice + addonsTotal;
-  const activeAddons = ADDONS.filter((a) => addons[a.id] > 0);
-  const canSubmit = contact.name && contact.email;
 
+  const pkgAlcoholicCount = selectedFlavours.filter((f) => FLAVOURS_ALCOHOLIC.includes(f)).length;
+  const extraAlcoholicCount = extraFlavours.filter((f) => FLAVOURS_ALCOHOLIC.includes(f)).length;
+  const totalAlcoholicSurcharge = (pkgAlcoholicCount + extraAlcoholicCount) * ALCOHOLIC_SURCHARGE;
+  const extraTubCost = extraTubs * EXTRA_TUB_PRICE;
+  const total = basePrice + totalAlcoholicSurcharge + extraTubCost;
+
+  const canSubmit = contact.name && contact.email;
   const updateContact = (field) => (e) => onContactChange({ ...contact, [field]: e.target.value });
 
   const formattedDate = eventData.date
@@ -315,8 +417,7 @@ function StepSummary({ eventData, selectedPkg, addons, contact, onContactChange,
     return (
       <section className="quote-step quote-sent">
         <div className="sent-inner">
-          <span className="sent-check"><CheckIcon /></span>
-          <h2 className="step-h">Quote <em>sent.</em></h2>
+          <h2 className="step-h" style={{ display: "flex", alignItems: "center", gap: "12px", justifyContent: "center" }}>Quote <em>sent.</em> <span className="sent-check"><CheckIcon /></span></h2>
           <p className="step-desc">
             We've got your details — expect to hear from us within 24 hours.
             In the meantime, feel free to stalk us on Instagram.
@@ -329,6 +430,8 @@ function StepSummary({ eventData, selectedPkg, addons, contact, onContactChange,
       </section>
     );
   }
+
+  const allFlavours = [...selectedFlavours, ...extraFlavours];
 
   return (
     <section className="quote-step">
@@ -351,6 +454,10 @@ function StepSummary({ eventData, selectedPkg, addons, contact, onContactChange,
             <div className="summary-row">
               <span>Date</span><span>{formattedDate}</span>
             </div>
+            <div className="summary-row summary-row-full">
+              <span>Flavours ({allFlavours.length} tubs)</span>
+              <span>{allFlavours.join(", ")}</span>
+            </div>
             {eventData.notes && (
               <div className="summary-row summary-row-full">
                 <span>Notes</span><span>{eventData.notes}</span>
@@ -363,15 +470,21 @@ function StepSummary({ eventData, selectedPkg, addons, contact, onContactChange,
           <span className="summary-label">Pricing</span>
           <div className="summary-details">
             <div className="summary-row">
-              <span>{basePkg.name} package</span>
+              <span>{basePkg.name} package ({basePkg.tubs} tubs)</span>
               <span>RM {basePrice.toLocaleString()}</span>
             </div>
-            {activeAddons.map((a) => (
-              <div className="summary-row" key={a.id}>
-                <span>{a.name} x{addons[a.id]}</span>
-                <span>RM {(a.price * addons[a.id]).toLocaleString()}</span>
+            {totalAlcoholicSurcharge > 0 && (
+              <div className="summary-row">
+                <span>Alcoholic surcharge x{pkgAlcoholicCount + extraAlcoholicCount}</span>
+                <span>RM {totalAlcoholicSurcharge.toLocaleString()}</span>
               </div>
-            ))}
+            )}
+            {extraTubs > 0 && (
+              <div className="summary-row">
+                <span>Extra tubs x{extraTubs}</span>
+                <span>RM {extraTubCost.toLocaleString()}</span>
+              </div>
+            )}
             <div className="summary-row summary-total">
               <span>Estimated total</span>
               <span>RM {total.toLocaleString()}</span>
@@ -403,10 +516,11 @@ function StepSummary({ eventData, selectedPkg, addons, contact, onContactChange,
           <ArrowLeft />
           <span>back</span>
         </button>
-        <button className="btn btn-pink" onClick={onSubmit} disabled={!canSubmit}>
-          <span>send quote request</span>
+        <button className="btn btn-pink" onClick={onSubmit} disabled={!canSubmit || sending}>
+          <span>{sending ? "sending..." : "send quote request"}</span>
           <ArrowRight />
         </button>
+        {submitError && <p style={{ color: "#e53e3e", fontSize: "14px", margin: 0 }}>{submitError}</p>}
       </div>
     </section>
   );
@@ -423,19 +537,52 @@ function QuotePage() {
     notes: "",
   });
   const [selectedPkg, setSelectedPkg] = useState(null);
-  const [addons, setAddons] = useState(
-    Object.fromEntries(ADDONS.map((a) => [a.id, 0]))
-  );
+  const [selectedFlavours, setSelectedFlavours] = useState([]);
+  const [extraTubs, setExtraTubs] = useState(0);
+  const [extraFlavours, setExtraFlavours] = useState([]);
   const [contact, setContact] = useState({ name: "", email: "", phone: "" });
   const [sent, setSent] = useState(false);
-
-  const updateAddon = (id, qty) => {
-    setAddons({ ...addons, [id]: qty });
-  };
+  const [sending, setSending] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
   const handleSubmit = () => {
-    setSent(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const basePkg = PACKAGES.find((p) => p.id === selectedPkg);
+    const allFlavours = [...selectedFlavours, ...extraFlavours];
+    const pkgAlcCount = selectedFlavours.filter((f) => FLAVOURS_ALCOHOLIC.includes(f)).length;
+    const extraAlcCount = extraFlavours.filter((f) => FLAVOURS_ALCOHOLIC.includes(f)).length;
+    const totalAlcSurcharge = (pkgAlcCount + extraAlcCount) * ALCOHOLIC_SURCHARGE;
+    const extraTubCost = extraTubs * EXTRA_TUB_PRICE;
+    const total = basePkg.price + totalAlcSurcharge + extraTubCost;
+
+    setSending(true);
+    setSubmitError(null);
+
+    submitForm(FORM_EMAIL, {
+      _subject: `Wonkie Quote Request from ${contact.name}`,
+      _replyto: contact.email,
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone || "—",
+      "event type": eventData.eventType,
+      guests: eventData.guests || "—",
+      venue: eventData.venue,
+      date: eventData.date,
+      notes: eventData.notes || "—",
+      package: `${basePkg.name} (${basePkg.tubs} tubs) — RM ${basePkg.price.toLocaleString()}`,
+      flavours: allFlavours.join(", "),
+      "extra tubs": extraTubs > 0 ? `${extraTubs} — RM ${extraTubCost.toLocaleString()}` : "None",
+      "alcoholic surcharge": totalAlcSurcharge > 0 ? `x${pkgAlcCount + extraAlcCount} — RM ${totalAlcSurcharge.toLocaleString()}` : "None",
+      "estimated total": `RM ${total.toLocaleString()}`,
+    })
+      .then(() => {
+        setSent(true);
+        setSending(false);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      })
+      .catch(() => {
+        setSubmitError("Something went wrong — please try again.");
+        setSending(false);
+      });
   };
 
   const goTo = (s) => {
@@ -465,21 +612,39 @@ function QuotePage() {
         <StepEvent data={eventData} onChange={setEventData} onNext={() => goTo(1)} />
       )}
       {step === 1 && (
-        <StepPackage selectedPkg={selectedPkg} onSelect={setSelectedPkg} onBack={() => goTo(0)} onNext={() => goTo(2)} />
+        <StepPackage
+          selectedPkg={selectedPkg}
+          onSelect={setSelectedPkg}
+          selectedFlavours={selectedFlavours}
+          onFlavoursChange={setSelectedFlavours}
+          onBack={() => goTo(0)}
+          onNext={() => goTo(2)}
+        />
       )}
       {step === 2 && (
-        <StepAddons addons={addons} onUpdate={updateAddon} onBack={() => goTo(1)} onNext={() => goTo(3)} />
+        <StepExtras
+          extraTubs={extraTubs}
+          extraFlavours={extraFlavours}
+          onExtraTubsChange={setExtraTubs}
+          onExtraFlavoursChange={setExtraFlavours}
+          onBack={() => goTo(1)}
+          onNext={() => goTo(3)}
+        />
       )}
       {step === 3 && (
         <StepSummary
           eventData={eventData}
           selectedPkg={selectedPkg}
-          addons={addons}
+          selectedFlavours={selectedFlavours}
+          extraTubs={extraTubs}
+          extraFlavours={extraFlavours}
           contact={contact}
           onContactChange={setContact}
           onBack={() => goTo(2)}
           onSubmit={handleSubmit}
           sent={sent}
+          sending={sending}
+          submitError={submitError}
         />
       )}
 
