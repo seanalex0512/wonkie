@@ -10,6 +10,12 @@ export default function VisitEnquire() {
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDate = tomorrow.toISOString().split("T")[0];
+  const dateValid = !form.date || form.date >= minDate;
+
   const submit = (e) => {
     e.preventDefault();
     setSending(true);
@@ -60,7 +66,8 @@ export default function VisitEnquire() {
           </label>
           <label className="field">
             <span>date</span>
-            <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} />
+            <input type="date" min={minDate} value={form.date} onChange={e => setForm({...form, date: e.target.value})} />
+            {form.date && !dateValid && <span className="field-error">Please choose a future date</span>}
           </label>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
             <label className="field">
