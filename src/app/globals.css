@@ -1382,3 +1382,83 @@ em {
   width: 20px; height: 20px;
   stroke: var(--ink);
 }
+
+/* ---- TIME PICKER ---- */
+.time-picker {
+  position: relative;
+}
+.time-picker-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color .2s;
+}
+.time-picker-btn:hover,
+.time-picker-btn:focus {
+  border-color: var(--pink);
+  outline: none;
+}
+.time-picker-btn svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.time-picker-placeholder {
+  color: var(--muted);
+}
+.time-picker-value {
+  color: var(--ink);
+}
+.time-picker-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-top: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  z-index: 60;
+}
+.time-picker-option {
+  padding: 10px 16px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.time-picker-option:hover {
+  background: var(--lime);
+}
+.time-picker-active {
+  font-weight: 600;
+  color: var(--pink);
+}
+.visit-enquire .time-picker-btn {
+  border-bottom: 1px solid var(--rule);
+}
+.visit-form .time-picker-btn {
+  border: none;
+  border-bottom: 1px solid var(--ink);
+  border-radius: 0;
+  padding: 8px 0;
+  background: transparent;
+}
+.visit-form .time-picker-btn:hover,
+.visit-form .time-picker-btn:focus {
+  border-bottom-color: var(--pink);
+}
+.visit-form .time-picker-dropdown {
+  border: 1px solid var(--rule);
+}

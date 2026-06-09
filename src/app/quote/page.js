@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowLeft, CheckIcon16 as CheckIcon } from "@/components/Icons";
+import TimePicker from "@/components/TimePicker";
 import { FORM_EMAIL, submitForm } from "@/lib/formsubmit";
 
 const FLAVOURS_NON_ALCOHOLIC = [
@@ -140,14 +141,14 @@ function StepEvent({ data, onChange, onNext }) {
           {data.date && !dateValid && <span className="field-error">Please choose a future date</span>}
         </label>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-          <label className="field">
+          <div className="field">
             <span>from</span>
-            <input type="time" value={data.timeFrom} onChange={update("timeFrom")} />
-          </label>
-          <label className="field">
+            <TimePicker value={data.timeFrom} onChange={v => onChange({...data, timeFrom: v})} placeholder="Start time" />
+          </div>
+          <div className="field">
             <span>to</span>
-            <input type="time" value={data.timeTo} onChange={update("timeTo")} />
-          </label>
+            <TimePicker value={data.timeTo} onChange={v => onChange({...data, timeTo: v})} placeholder="End time" />
+          </div>
         </div>
         <label className="field field-full">
           <span>anything else we should know?</span>

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useReveal } from "@/hooks/useReveal";
 import { ArrowUpRight, CheckIcon } from "./Icons";
 import { FORM_EMAIL, submitForm } from "@/lib/formsubmit";
+import TimePicker from "./TimePicker";
 
 export default function VisitEnquire() {
   const ref = useReveal();
@@ -70,14 +71,14 @@ export default function VisitEnquire() {
             {form.date && !dateValid && <span className="field-error">Please choose a future date</span>}
           </label>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-            <label className="field">
+            <div className="field">
               <span>from</span>
-              <input type="time" value={form.timeFrom} onChange={e => setForm({...form, timeFrom: e.target.value})} />
-            </label>
-            <label className="field">
+              <TimePicker value={form.timeFrom} onChange={v => setForm({...form, timeFrom: v})} placeholder="Start time" />
+            </div>
+            <div className="field">
               <span>to</span>
-              <input type="time" value={form.timeTo} onChange={e => setForm({...form, timeTo: e.target.value})} />
-            </label>
+              <TimePicker value={form.timeTo} onChange={v => setForm({...form, timeTo: v})} placeholder="End time" />
+            </div>
           </div>
           <label className="field">
             <span>event details</span>
