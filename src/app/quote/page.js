@@ -139,6 +139,16 @@ function StepEvent({ data, onChange, onNext }) {
           <input type="date" min={minDate} value={data.date} onChange={update("date")} />
           {data.date && !dateValid && <span className="field-error">Please choose a future date</span>}
         </label>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+          <label className="field">
+            <span>from</span>
+            <input type="time" value={data.timeFrom} onChange={update("timeFrom")} />
+          </label>
+          <label className="field">
+            <span>to</span>
+            <input type="time" value={data.timeTo} onChange={update("timeTo")} />
+          </label>
+        </div>
         <label className="field field-full">
           <span>anything else we should know?</span>
           <textarea rows={3} placeholder="dietary needs, theme, special requests..." value={data.notes} onChange={update("notes")} />
@@ -406,6 +416,11 @@ function StepSummary({ eventData, selectedPkg, selectedFlavours, extraTubs, extr
             <div className="summary-row">
               <span>Date</span><span>{formattedDate}</span>
             </div>
+            {(eventData.timeFrom || eventData.timeTo) && (
+              <div className="summary-row">
+                <span>Time</span><span>{eventData.timeFrom || "—"} to {eventData.timeTo || "—"}</span>
+              </div>
+            )}
             <div className="summary-row summary-row-full">
               <span>Flavours ({allFlavours.length} tubs)</span>
               <span>{allFlavours.join(", ")}</span>
@@ -485,6 +500,8 @@ export default function QuotePage() {
     guests: "",
     venue: "",
     date: "",
+    timeFrom: "",
+    timeTo: "",
     notes: "",
   });
   const [selectedPkg, setSelectedPkg] = useState(null);
@@ -518,6 +535,7 @@ export default function QuotePage() {
       guests: eventData.guests || "—",
       venue: eventData.venue,
       date: eventData.date,
+      time: eventData.timeFrom || eventData.timeTo ? `${eventData.timeFrom || "—"} to ${eventData.timeTo || "—"}` : "—",
       notes: eventData.notes || "—",
       package: `${basePkg.name} (${basePkg.tubs} tubs) — RM ${basePkg.price.toLocaleString()}`,
       flavours: allFlavours.join(", "),

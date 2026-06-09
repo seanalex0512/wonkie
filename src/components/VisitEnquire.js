@@ -6,7 +6,7 @@ import { FORM_EMAIL, submitForm } from "@/lib/formsubmit";
 
 export default function VisitEnquire() {
   const ref = useReveal();
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [form, setForm] = useState({ name: "", email: "", venue: "", date: "", timeFrom: "", timeTo: "", message: "" });
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
@@ -19,6 +19,9 @@ export default function VisitEnquire() {
       _replyto: form.email,
       name: form.name,
       email: form.email,
+      venue: form.venue || "—",
+      date: form.date || "—",
+      time: form.timeFrom || form.timeTo ? `${form.timeFrom || "—"} to ${form.timeTo || "—"}` : "—",
       "event details": form.message,
     })
       .then(() => { setSent(true); setSending(false); })
@@ -51,6 +54,24 @@ export default function VisitEnquire() {
             <span>email</span>
             <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
           </label>
+          <label className="field">
+            <span>venue</span>
+            <input value={form.venue} onChange={e => setForm({...form, venue: e.target.value})} placeholder="venue name or address" />
+          </label>
+          <label className="field">
+            <span>date</span>
+            <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} />
+          </label>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <label className="field">
+              <span>from</span>
+              <input type="time" value={form.timeFrom} onChange={e => setForm({...form, timeFrom: e.target.value})} />
+            </label>
+            <label className="field">
+              <span>to</span>
+              <input type="time" value={form.timeTo} onChange={e => setForm({...form, timeTo: e.target.value})} />
+            </label>
+          </div>
           <label className="field">
             <span>event details</span>
             <textarea rows={4} value={form.message} onChange={e => setForm({...form, message: e.target.value})}
