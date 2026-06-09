@@ -20,7 +20,7 @@ export default function Highlights() {
             </div>
             <div className="highlight-item">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a5 5 0 0 1 5 5v3H7V7a5 5 0 0 1 5-5Z"/><path d="M19 10H5a2 2 0 0 0-2 2v1a7 7 0 0 0 14 0v-1a2 2 0 0 0-2-2Z"/><path d="M12 17v5"/></svg>
-              <h4>Small-batch, always fresh</h4>
+              <h4>16 Flavors, always fresh</h4>
               <p>Sixteen flavours at a time, never the same sixteen.</p>
             </div>
             <div className="highlight-item">
