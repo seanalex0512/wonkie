@@ -63,6 +63,13 @@ export const metadata = {
     ],
   },
   manifest: "/favicon/site.webmanifest",
+  other: [
+    { rel: "icon", url: "/favicon/genfavicon-48.png", sizes: "48x48" },
+    { rel: "icon", url: "/favicon/genfavicon-64.png", sizes: "64x64" },
+    { rel: "icon", url: "/favicon/genfavicon-128.png", sizes: "128x128" },
+    { rel: "icon", url: "/favicon/genfavicon-256.png", sizes: "256x256" },
+    { rel: "icon", url: "/favicon/genfavicon-512.png", sizes: "512x512" },
+  ],
 };
 
 export default function RootLayout({ children }) {
